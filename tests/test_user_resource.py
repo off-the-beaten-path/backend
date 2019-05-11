@@ -41,7 +41,7 @@ def test_register(app, client, email, password):
         json_data = rv.get_json()
 
         # confirm login succeeded
-        validate_json(json_data, 'user.json')
+        validate_json(json_data, 'user.jwt.json')
 
 
 def test_register_existing_user(client, test_user):
@@ -125,7 +125,7 @@ def test_login(client, test_user):
     json_data = rv.get_json()
 
     # confirm login succeeded
-    assert 'jwt' in json_data
+    validate_json(json_data, 'user.jwt.json')
 
 
 @pytest.mark.parametrize(
@@ -180,7 +180,7 @@ def test_refresh(client, test_user):
         json_data = rv.get_json()
 
         # confirm refresh succeeded
-        assert 'jwt' in json_data
+        validate_json(json_data, 'user.jwt.json')
 
 
 def test_change_password(client, test_user):
@@ -210,7 +210,7 @@ def test_change_password(client, test_user):
     json_data = rv.get_json()
 
     # confirm login succeeded
-    assert 'jwt' in json_data
+    validate_json(json_data, 'user.jwt.json')
 
 
 def test_invalid_change_password(client, test_user):
@@ -227,7 +227,6 @@ def test_invalid_change_password(client, test_user):
 
     assert rv.status_code == 400
 
-    json_data = rv.get_json()
     assert 'Invalid password' in rv.get_json()['message']
 
     # attempt to login with new password
