@@ -13,6 +13,7 @@ def init_app(app):
 # Collect schemas here for universal/simplified imports
 from otbp.schemas.user import UserAuthSchema, UserLoginRegisterSchema, UserChangePasswordSchema
 from otbp.schemas.error import ErrorSchema
+from otbp.schemas.image import ImageSchema
 
 
 class DefaultApiResponseSchema(ma.Schema):

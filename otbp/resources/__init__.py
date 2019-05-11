@@ -10,6 +10,9 @@ security_rules = [{'auth': []}]
 
 
 def init_app(app):
+    # initialize flask-marshmallow
+    ma.init_app(app)
+
     # initialize flask-apispec
 
     # configure security definitions to support providing a jwt access token in Swagger UI
@@ -47,3 +50,7 @@ def init_app(app):
 
     app.add_url_rule('/user/password', view_func=UserPasswordResource.as_view('UserPasswordResource'))
     docs.register(UserPasswordResource, endpoint='UserPasswordResource')
+
+    from .image import ImageResource
+    app.add_url_rule('/photo/', view_func=ImageResource.as_view('ImageResource'))
+    docs.register(ImageResource, endpoint='ImageResource')

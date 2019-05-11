@@ -12,16 +12,16 @@ class CheckInModel(db.Model):
     final_distance = db.Column(db.Float, nullable=False)
 
     location_id = db.Column(db.Integer,
-                            db.ForeignKey('geocache.id'),
+                            db.ForeignKey('geocache_model.id'),
                             nullable=False)
-    location = db.relationship('Geocache')
+    location = db.relationship('GeocacheModel')
 
     image_id = db.Column(db.Integer,
-                         db.ForeignKey('image.id'),
+                         db.ForeignKey('image_model.id'),
                          nullable=True)
-    image = db.relationship('Image')
+    image = db.relationship('ImageModel')
 
     user_id = db.Column(db.Integer,
-                        db.ForeignKey('user.id'),
+                        db.ForeignKey('user_model.id'),
                         nullable=False)
-    user = db.relationship('User')
+    user = db.relationship('UserModel')

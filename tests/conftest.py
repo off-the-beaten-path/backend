@@ -13,12 +13,11 @@ def app():
     flask_app.testing = True
 
     with flask_app.app_context():
+        db.drop_all()
+
         db.create_all()
 
-    yield flask_app
-
-    with flask_app.app_context():
-        db.drop_all()
+        yield flask_app
 
 
 @pytest.fixture

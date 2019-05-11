@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
 
+import os
+
 
 def create_app():
     # create and configure the app
@@ -14,6 +16,9 @@ def create_app():
 
     # load the instance config
     app.config.from_envvar("OTBP_SETTINGS", silent=False)
+
+    # create the upload directory
+    os.makedirs(app.config['UPLOAD_DIRECTORY'], exist_ok=True)
 
     # CORS
     CORS(app)

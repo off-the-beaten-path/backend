@@ -3,7 +3,7 @@ from freezegun import freeze_time
 
 import pytest
 
-from otbp.models.user import UserModel
+from otbp.models import UserModel
 from otbp.praetorian import guard
 
 from tests.support.assertions import validate_json
