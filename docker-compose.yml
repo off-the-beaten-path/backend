@@ -1,0 +1,9 @@
+version: '3'
+services:
+  web:
+    environment:
+      OTBP_SETTINGS: "/app/env/docker.env"
+    build: .
+    ports:
+      - "8088:80"
+    restart: always
