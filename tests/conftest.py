@@ -53,3 +53,28 @@ def test_user(app):
                         password=password,
                         id=user.id,
                         auth_headers=headers)
+
+
+@pytest.fixture
+def test_other_user(app):
+    TestUser = namedtuple(
+        'TestUser', ['email', 'password', 'id', 'auth_headers']
+    )
+
+    with app.app_context():
+        email = 'test2@unittest.com'
+        password = 'password123'
+
+        user = UserModel(email=email,
+                         password=guard.encrypt_password(password),
+                         roles='player')
+
+        db.session.add(user)
+        db.session.commit()
+
+        headers = {'Authorization': f'Bearer {guard.encode_jwt_token(user)}'}
+
+        return TestUser(email=email,
+                        password=password,
+                        id=user.id,
+                        auth_headers=headers)

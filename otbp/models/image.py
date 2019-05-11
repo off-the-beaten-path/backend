@@ -10,6 +10,7 @@ class ImageModel(db.Model):
                            default=datetime.utcnow,
                            nullable=False)
 
+    filename = db.Column(db.String(128), nullable=True)
     filepath = db.Column(db.String(512), nullable=True)
 
     user_id = db.Column(db.Integer,

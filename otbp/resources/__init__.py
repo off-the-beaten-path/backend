@@ -51,6 +51,9 @@ def init_app(app):
     app.add_url_rule('/user/password', view_func=UserPasswordResource.as_view('UserPasswordResource'))
     docs.register(UserPasswordResource, endpoint='UserPasswordResource')
 
-    from .image import ImageResource
-    app.add_url_rule('/photo/', view_func=ImageResource.as_view('ImageResource'))
-    docs.register(ImageResource, endpoint='ImageResource')
+    from .image import ImageRetrievalResource, ImageUploadResource
+    app.add_url_rule('/photo/<string:filename>', view_func=ImageRetrievalResource.as_view('ImageRetrievalResource'))
+    docs.register(ImageRetrievalResource, endpoint='ImageRetrievalResource')
+
+    app.add_url_rule('/photo/', view_func=ImageUploadResource.as_view('ImageUploadResource'))
+    docs.register(ImageUploadResource, endpoint='ImageUploadResource')
