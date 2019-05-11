@@ -14,6 +14,8 @@ def seed_test_user():
     """
     seed test user for casual interaction
     """
+    from otbp.models import db
+    db.create_all()
 
 
 @click.command()
