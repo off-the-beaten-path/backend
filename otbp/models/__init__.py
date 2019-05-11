@@ -4,6 +4,7 @@ db = SQLAlchemy()
 
 
 # Collect Models here for simplified/universal import statements `from models import XModel, YModel...`
+from otbp.models.user import UserModel
 
 def init_app(app):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

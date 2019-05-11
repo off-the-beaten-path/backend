@@ -5,6 +5,5 @@ guard = Praetorian()
 
 
 def init_praetorian(app):
-#    from .models.user import UserModel
-#    guard.init_app(app, UserModel)
-    pass
+    from .models.user import UserModel
+    guard.init_app(app, UserModel)

@@ -3,7 +3,7 @@ from datetime import datetime
 from otbp.models import db
 
 
-class User(db.Model):
+class UserModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     created_at = db.Column(db.DateTime,

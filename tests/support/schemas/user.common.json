@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "jwt": {
+      "type": "object",
+      "required": [
+        "jwt"
+      ],
+      "properties": {
+        "jwt": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
