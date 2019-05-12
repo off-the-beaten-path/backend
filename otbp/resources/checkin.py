@@ -40,7 +40,9 @@ class CheckInResource(MethodResource):
 )
 class UserCheckInListResource(MethodResource):
 
-    @use_kwargs({'page': marshmallow.fields.Int()})
+    @use_kwargs({
+        'page': marshmallow.fields.Int()
+    }, locations=['query'])
     @marshal_with(PaginatedCheckInSchema, 200)
     @marshal_with(ErrorSchema, code=401)
     @flask_praetorian.auth_required
