@@ -1,3 +1,4 @@
+from datetime import date
 from flask import current_app
 from flask_apispec import marshal_with, doc, use_kwargs
 from flask_apispec.views import MethodResource
@@ -6,8 +7,9 @@ import flask_praetorian
 import marshmallow
 
 from otbp.resources import security_rules
-from otbp.models import db, CheckInModel
+from otbp.models import db, CheckInModel, GeoCacheModel
 from otbp.schemas import ErrorSchema, CheckInSchema, PaginatedCheckInSchema
+from otbp.utils import geodistance
 
 
 @doc(
@@ -17,13 +19,23 @@ from otbp.schemas import ErrorSchema, CheckInSchema, PaginatedCheckInSchema
 class CheckInResource(MethodResource):
 
     @use_kwargs(CheckInSchema)
-    @marshal_with(ErrorSchema, code=401)
+    @marshal_with(ErrorSchema, code=400)
     @flask_praetorian.auth_required
     def post(self, text, location, geocache_id, image_id=None):
+        geocache = GeoCacheModel.query.get(geocache_id)
+
+        if date.today() != geocache.created_at.date():
+            return {'message': 'Expired geocache. You cannot check into a geocache after one day.'}, 400
+
+        final_distance = geodistance(location['lat'], location['lng'], geocache.lat, geocache.lng)
+
+        if final_distance > current_app.config['CHECKIN_MIN_DISTANCE']:
+            return {'message': 'You are too far away to check in.'}, 400
+
         checkin = CheckInModel(text=text,
                                lat=location['lat'],
                                lng=location['lng'],
-                               final_distance=0.0,
+                               final_distance=final_distance,
                                geocache_id=geocache_id,
                                image_id=image_id,
                                user_id=flask_praetorian.current_user_id())

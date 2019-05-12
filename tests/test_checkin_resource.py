@@ -1,6 +1,10 @@
+from datetime import date, timedelta
+from freezegun import freeze_time
+
 import pytest
 
 from otbp.models import db, GeoCacheModel, CheckInModel
+from otbp.utils import geodistance
 
 from tests.support.assertions import validate_json
 
@@ -72,8 +76,8 @@ def test_create_checkin_without_image(app, client, test_user, test_location):
         'geocache_id': test_location,
         'text': 'Hello, world!',
         'location': {
-            'lat': 42.1,
-            'lng': 42.1
+            'lat': 42.00001,
+            'lng': 42.00001
         }
     }
 
@@ -86,6 +90,7 @@ def test_create_checkin_without_image(app, client, test_user, test_location):
 
     with app.app_context():
         checkin = CheckInModel.query.filter_by(user_id=test_user.id).order_by(CheckInModel.created_at.desc()).first()
+        geocache = GeoCacheModel.query.get(test_location)
 
         assert checkin.text == data['text']
         assert checkin.lat == data['location']['lat']
@@ -93,14 +98,18 @@ def test_create_checkin_without_image(app, client, test_user, test_location):
         assert checkin.geocache_id == test_location
         assert checkin.image is None
 
+        # confirm that the final distance is correct - an approximation due to floating point arithmetic
+        assert abs(checkin.final_distance - geodistance(geocache.lat, geocache.lng, data['location']['lat'],
+                                                        data['location']['lng'])) < 0.01
+
 
 def test_create_checkin_with_image(app, client, test_user, test_location, test_image):
     data = {
         'geocache_id': test_location,
         'text': 'Hello, world!',
         'location': {
-            'lat': 42.1,
-            'lng': 42.1
+            'lat': 42.00001,
+            'lng': 42.00001
         },
         'image_id': test_image
     }
@@ -137,6 +146,49 @@ def test_create_checkin_without_geocache(app, client, test_user):
                      headers=test_user.auth_headers)
 
     assert rv.status_code == 422
+
+
+def test_create_checkin_with_old_geocache(app, client, test_user, test_location):
+    data = {
+        'geocache_id': test_location,
+        'text': 'Hello, world!',
+        'location': {
+            'lat': 42.1,
+            'lng': 42.1
+        },
+    }
+
+    today = date.today()
+    future = today + timedelta(days=1)
+
+    # move one day into the future in order to test that expired (geocaches are valid only on the date of creation)
+    # geocaches cannot be checked into
+    with freeze_time(future):
+        # hit the api
+        rv = client.post(f'/checkin/',
+                         json=data,
+                         headers=test_user.auth_headers)
+
+        assert rv.status_code == 400
+
+
+def test_create_checkin_too_far_away(app, client, test_user, test_location):
+    # attempt to check in while laughably far away
+    data = {
+        'geocache_id': test_location,
+        'text': 'Hello, world!',
+        'location': {
+            'lat': 0.1,
+            'lng': 0.1
+        }
+    }
+
+    # hit the api
+    rv = client.post(f'/checkin/',
+                     json=data,
+                     headers=test_user.auth_headers)
+
+    assert rv.status_code == 400
 
 
 def test_create_checkin_without_location(app, client, test_user, test_location):
