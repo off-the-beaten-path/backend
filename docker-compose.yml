@@ -5,5 +5,8 @@ services:
       OTBP_SETTINGS: "/app/env/docker.env"
     build: .
     ports:
-      - "8088:80"
+      - "8099:80"
     restart: always
+    volumes:
+      - ${PWD}/otbp/prod.db:/app/otbp/prod.db
+

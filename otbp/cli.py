@@ -4,23 +4,14 @@ import click
 
 
 def init_cli(app):
-    app.cli.add_command(seed_test_data)
-    app.cli.add_command(seed_test_user)
+    app.cli.add_command(create_db)
 
 
 @click.command()
 @with_appcontext
-def seed_test_user():
+def create_db():
     """
-    seed test user for casual interaction
+    create the database
     """
     from otbp.models import db
     db.create_all()
-
-
-@click.command()
-@with_appcontext
-def seed_test_data():
-    """
-    create (and/or reset) the e2e testing database and seed it
-    """
