@@ -8,9 +8,10 @@ from sqlalchemy.sql import func
 import flask_praetorian
 import random
 
-from otbp.resources import security_rules
 from otbp.models import db, GeoCacheModel
+from otbp.resources import security_rules
 from otbp.schemas import ErrorSchema, GeoCacheSchema
+from otbp.utils import geodistance
 
 
 @doc(
@@ -23,8 +24,6 @@ class GeoCacheLocationResource(MethodResource):
     @marshal_with(ErrorSchema, code=401)
     @flask_praetorian.auth_required
     def get(self, location):
-        def geodistance(a_lat, a_lng, b_lat, b_lng):
-            return vincenty((a_lat, a_lng), (b_lat, b_lng)).meters
 
         # location should be in format `lat,lng`
         user_lat, user_lng = tuple(map(float, location.split(',')))
