@@ -82,14 +82,14 @@ def test_other_user(app):
 
 
 @pytest.fixture
-def test_photo(app, client, test_user):
+def test_image(app, client, test_user):
     data = {
         'file': (io.BytesIO(b'abcdef'), 'test.jpg')
     }
 
     with app.app_context():
         # hit the api
-        rv = client.post('/photo/',
+        rv = client.post('/image/',
                          data=data,
                          content_type='multipart/form-data',
                          headers=test_user.auth_headers)

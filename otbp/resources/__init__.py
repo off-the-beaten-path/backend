@@ -52,10 +52,10 @@ def init_app(app):
     docs.register(UserPasswordResource, endpoint='UserPasswordResource')
 
     from .image import ImageRetrievalResource, ImageUploadResource
-    app.add_url_rule('/photo/<string:filename>', view_func=ImageRetrievalResource.as_view('ImageRetrievalResource'))
+    app.add_url_rule('/image/<string:filename>', view_func=ImageRetrievalResource.as_view('ImageRetrievalResource'))
     docs.register(ImageRetrievalResource, endpoint='ImageRetrievalResource')
 
-    app.add_url_rule('/photo/', view_func=ImageUploadResource.as_view('ImageUploadResource'))
+    app.add_url_rule('/image/', view_func=ImageUploadResource.as_view('ImageUploadResource'))
     docs.register(ImageUploadResource, endpoint='ImageUploadResource')
 
     from .checkin import CheckInResource, UserCheckInListResource
@@ -66,7 +66,7 @@ def init_app(app):
                      view_func=UserCheckInListResource.as_view('UserCheckInListResource'))
     docs.register(UserCheckInListResource, endpoint='UserCheckInListResource')
 
-    from .geocache import GeocacheLocationResource
+    from .geocache import GeoCacheLocationResource
     app.add_url_rule('/geocache/<string:location>',
-                     view_func=GeocacheLocationResource.as_view('GeocacheLocationResource'))
-    docs.register(GeocacheLocationResource, endpoint='GeocacheLocationResource')
+                     view_func=GeoCacheLocationResource.as_view('GeoCacheLocationResource'))
+    docs.register(GeoCacheLocationResource, endpoint='GeoCacheLocationResource')

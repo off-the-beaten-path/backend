@@ -16,9 +16,9 @@ class CheckInModel(db.Model):
     final_distance = db.Column(db.Float, nullable=False)
 
     geocache_id = db.Column(db.Integer,
-                            db.ForeignKey('geocache_model.id'),
+                            db.ForeignKey('geo_cache_model.id'),
                             nullable=False)
-    geocache = db.relationship('GeocacheModel')
+    geocache = db.relationship('GeoCacheModel')
 
     image_id = db.Column(db.Integer,
                          db.ForeignKey('image_model.id'),

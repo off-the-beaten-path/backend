@@ -9,7 +9,7 @@ import flask_praetorian
 import random
 
 from otbp.resources import security_rules
-from otbp.models import db, GeocacheModel
+from otbp.models import db, GeoCacheModel
 from otbp.schemas import ErrorSchema, GeoCacheSchema
 
 
@@ -17,7 +17,7 @@ from otbp.schemas import ErrorSchema, GeoCacheSchema
     tags=['Geocache'],
     security=security_rules
 )
-class GeocacheLocationResource(MethodResource):
+class GeoCacheLocationResource(MethodResource):
 
     @marshal_with(GeoCacheSchema, code=200)
     @marshal_with(ErrorSchema, code=401)
@@ -30,10 +30,10 @@ class GeocacheLocationResource(MethodResource):
         user_lat, user_lng = tuple(map(float, location.split(',')))
 
         # attempt to find an existing location
-        target_list = GeocacheModel.query \
+        target_list = GeoCacheModel.query \
             .filter(
             # check for results created today
-            func.date(GeocacheModel.created_at) == func.current_date()
+            func.date(GeoCacheModel.created_at) == func.current_date()
         ) \
             .all()
 
@@ -65,7 +65,7 @@ class GeocacheLocationResource(MethodResource):
         target_lat, target_lng, _ = vincenty(kilometers=pdistance) \
             .destination(Point(user_lat, user_lng), angle)
 
-        geocache = GeocacheModel(lat=target_lat,
+        geocache = GeoCacheModel(lat=target_lat,
                                  lng=target_lng)
 
         db.session.add(geocache)

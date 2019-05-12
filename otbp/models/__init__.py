@@ -6,7 +6,7 @@ db = SQLAlchemy()
 from .user import UserModel
 from .image import ImageModel
 from .checkin import CheckInModel
-from .location import GeocacheModel
+from .geocache import GeoCacheModel
 
 
 def init_app(app):

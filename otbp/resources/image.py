@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = {'jpeg', 'jpg', 'png'}
 
 
 @doc(
-    tags=['Photos'],
+    tags=['Image'],
     security=security_rules
 )
 class ImageRetrievalResource(MethodResource):
@@ -33,7 +33,7 @@ class ImageRetrievalResource(MethodResource):
 
 
 @doc(
-    tags=['Photos'],
+    tags=['Image'],
     security=security_rules
 )
 class ImageUploadResource(MethodResource):

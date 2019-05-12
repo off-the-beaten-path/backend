@@ -1,6 +1,6 @@
 import pytest
 
-from otbp.models import db, GeocacheModel, CheckInModel
+from otbp.models import db, GeoCacheModel, CheckInModel
 
 from tests.support.assertions import validate_json
 
@@ -8,7 +8,7 @@ from tests.support.assertions import validate_json
 @pytest.fixture
 def test_location(app):
     with app.app_context():
-        location = GeocacheModel(lat=42.0, lng=42.0)
+        location = GeoCacheModel(lat=42.0, lng=42.0)
         db.session.add(location)
         db.session.commit()
 
@@ -18,7 +18,7 @@ def test_location(app):
 @pytest.fixture
 def test_other_location(app):
     with app.app_context():
-        location = GeocacheModel(lat=84.0, lng=84.0)
+        location = GeoCacheModel(lat=84.0, lng=84.0)
         db.session.add(location)
         db.session.commit()
 
@@ -26,7 +26,7 @@ def test_other_location(app):
 
 
 @pytest.fixture
-def test_checkins(app, test_user, test_other_user, test_location, test_photo, test_other_location):
+def test_checkins(app, test_user, test_other_user, test_location, test_image, test_other_location):
     with app.app_context():
         db.session.add(CheckInModel(text='test user, test location, no image',
                                     lat=1.0,
@@ -40,7 +40,7 @@ def test_checkins(app, test_user, test_other_user, test_location, test_photo, te
                                     lng=1.0,
                                     final_distance=2.0,
                                     user_id=test_user.id,
-                                    image_id=test_photo,
+                                    image_id=test_image,
                                     geocache_id=test_location))
 
         db.session.add(CheckInModel(text='test user, test other location, no image',
@@ -94,7 +94,7 @@ def test_create_checkin_without_image(app, client, test_user, test_location):
         assert checkin.image is None
 
 
-def test_create_checkin_with_image(app, client, test_user, test_location, test_photo):
+def test_create_checkin_with_image(app, client, test_user, test_location, test_image):
     data = {
         'geocache_id': test_location,
         'text': 'Hello, world!',
@@ -102,7 +102,7 @@ def test_create_checkin_with_image(app, client, test_user, test_location, test_p
             'lat': 42.1,
             'lng': 42.1
         },
-        'image_id': test_photo
+        'image_id': test_image
     }
 
     # hit the api
@@ -119,7 +119,7 @@ def test_create_checkin_with_image(app, client, test_user, test_location, test_p
         assert checkin.lat == data['location']['lat']
         assert checkin.lng == data['location']['lng']
         assert checkin.geocache_id == test_location
-        assert checkin.image_id == test_photo
+        assert checkin.image_id == test_image
 
 
 def test_create_checkin_without_geocache(app, client, test_user):

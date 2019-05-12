@@ -3,7 +3,7 @@ from datetime import datetime
 from otbp.models import db
 
 
-class GeocacheModel(db.Model):
+class GeoCacheModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime,
                            default=datetime.utcnow,
