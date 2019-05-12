@@ -32,3 +32,10 @@ class PaginatedCheckInSchema(ma.Schema):
     items = marshmallow.fields.Nested(CheckInSchema, many=True, required=True)
     page = marshmallow.fields.Int(required=True)
     has_next = marshmallow.fields.Boolean(required=True)
+
+
+class CheckInListSchema(ma.Schema):
+    class Meta:
+        strict = True
+
+    items = marshmallow.fields.Nested(CheckInSchema, many=True, required=True)

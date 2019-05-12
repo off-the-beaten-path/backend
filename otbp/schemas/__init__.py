@@ -14,7 +14,7 @@ def init_app(app):
 from otbp.schemas.user import UserAuthSchema, UserLoginRegisterSchema, UserChangePasswordSchema, UserSchema
 from otbp.schemas.error import ErrorSchema
 from otbp.schemas.image import ImageSchema
-from otbp.schemas.checkin import CheckInSchema, PaginatedCheckInSchema
+from otbp.schemas.checkin import CheckInSchema, PaginatedCheckInSchema, CheckInListSchema
 from otbp.schemas.geocache import GeoCacheSchema
 
 

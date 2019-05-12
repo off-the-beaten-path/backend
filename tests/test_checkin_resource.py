@@ -208,7 +208,7 @@ def test_create_checkin_without_location(app, client, test_user, test_location):
 @pytest.mark.usefixtures('test_checkins')
 def test_retrieve_user_checkins_paginated(app, client, test_user):
     # hit the api
-    rv = client.get(f'/checkin/user/{test_user.id}',
+    rv = client.get(f'/checkin/user/{test_user.id}/paginated',
                     headers=test_user.auth_headers)
 
     assert rv.status_code == 200
@@ -225,7 +225,33 @@ def test_retrieve_user_checkins_paginated(app, client, test_user):
 @pytest.mark.usefixtures('test_checkins')
 def test_prevent_other_user_retrieve_user_checkins_paginated(app, client, test_user, test_other_user):
     # hit the api
-    rv = client.get(f'/checkin/user/{test_other_user.id}',
+    rv = client.get(f'/checkin/user/{test_other_user.id}/paginated',
+                    headers=test_user.auth_headers)
+
+    assert rv.status_code == 401
+
+
+@pytest.mark.usefixtures('test_checkins')
+def test_retrieve_user_checkins_all(app, client, test_user):
+    # hit the api
+    rv = client.get(f'/checkin/user/{test_user.id}/',
+                    headers=test_user.auth_headers)
+
+    assert rv.status_code == 200
+
+    json_data = rv.get_json()
+
+    validate_json(json_data, 'checkins.json')
+
+    # confirm that user checkins are only for this user
+    for checkin in json_data['items']:
+        assert checkin['user']['id'] == test_user.id
+
+
+@pytest.mark.usefixtures('test_checkins')
+def test_prevent_other_user_retrieve_user_checkins_paginated(app, client, test_user, test_other_user):
+    # hit the api
+    rv = client.get(f'/checkin/user/{test_other_user.id}/',
                     headers=test_user.auth_headers)
 
     assert rv.status_code == 401

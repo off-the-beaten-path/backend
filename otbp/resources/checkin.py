@@ -8,7 +8,7 @@ import marshmallow
 
 from otbp.resources import security_rules
 from otbp.models import db, CheckInModel, GeoCacheModel
-from otbp.schemas import ErrorSchema, CheckInSchema, PaginatedCheckInSchema
+from otbp.schemas import ErrorSchema, CheckInSchema, PaginatedCheckInSchema, CheckInListSchema
 from otbp.utils import geodistance
 
 
@@ -50,7 +50,7 @@ class CheckInResource(MethodResource):
     tags=['Check In'],
     security=security_rules
 )
-class UserCheckInListResource(MethodResource):
+class UserCheckInListPaginatedResource(MethodResource):
 
     @use_kwargs({
         'page': marshmallow.fields.Int()
@@ -68,3 +68,28 @@ class UserCheckInListResource(MethodResource):
             .paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
         return checkins, 200
+
+
+@doc(
+    tags=['Check In'],
+    security=security_rules
+)
+class UserCheckInListResource(MethodResource):
+
+    @marshal_with(CheckInListSchema, 200)
+    @marshal_with(ErrorSchema, code=401)
+    @flask_praetorian.auth_required
+    def get(self, user_id):
+        if user_id != flask_praetorian.current_user_id():
+            return {'message': 'Unauthorized'}, 401
+
+        checkins = CheckInModel.query \
+            .filter_by(user_id=user_id) \
+            .order_by(CheckInModel.created_at.desc()) \
+            .all()
+
+        resp = {
+            'items': checkins
+        }
+
+        return resp, 200

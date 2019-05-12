@@ -58,11 +58,15 @@ def init_app(app):
     app.add_url_rule('/image/', view_func=ImageUploadResource.as_view('ImageUploadResource'))
     docs.register(ImageUploadResource, endpoint='ImageUploadResource')
 
-    from .checkin import CheckInResource, UserCheckInListResource
+    from .checkin import CheckInResource, UserCheckInListPaginatedResource, UserCheckInListResource
     app.add_url_rule('/checkin/', view_func=CheckInResource.as_view('CheckInResource'))
     docs.register(CheckInResource, endpoint='CheckInResource')
 
-    app.add_url_rule('/checkin/user/<int:user_id>',
+    app.add_url_rule('/checkin/user/<int:user_id>/paginated',
+                     view_func=UserCheckInListPaginatedResource.as_view('UserCheckInListPaginatedResource'))
+    docs.register(UserCheckInListPaginatedResource, endpoint='UserCheckInListPaginatedResource')
+
+    app.add_url_rule('/checkin/user/<int:user_id>/',
                      view_func=UserCheckInListResource.as_view('UserCheckInListResource'))
     docs.register(UserCheckInListResource, endpoint='UserCheckInListResource')
 
