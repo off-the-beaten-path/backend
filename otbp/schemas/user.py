@@ -24,3 +24,10 @@ class UserChangePasswordSchema(ma.Schema):
 
     old = marshmallow.fields.Str()
     new = marshmallow.fields.Str()
+
+
+class UserSchema(ma.Schema):
+    class Meta:
+        strict = True
+
+    id = marshmallow.fields.Int()

@@ -8,13 +8,17 @@ class CheckInModel(db.Model):
     created_at = db.Column(db.DateTime,
                            default=datetime.utcnow,
                            nullable=False)
+
     text = db.Column(db.String(140), nullable=False)
+
+    lat = db.Column(db.Float, nullable=False)
+    lng = db.Column(db.Float, nullable=False)
     final_distance = db.Column(db.Float, nullable=False)
 
-    location_id = db.Column(db.Integer,
+    geocache_id = db.Column(db.Integer,
                             db.ForeignKey('geocache_model.id'),
                             nullable=False)
-    location = db.relationship('GeocacheModel')
+    geocache = db.relationship('GeocacheModel')
 
     image_id = db.Column(db.Integer,
                          db.ForeignKey('image_model.id'),

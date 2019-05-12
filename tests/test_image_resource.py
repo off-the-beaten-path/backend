@@ -1,25 +1,8 @@
 import io
-import pytest
 
 from otbp.models import ImageModel
 
 from tests.support.assertions import validate_json
-
-
-@pytest.fixture
-def test_photo(app, client, test_user):
-    data = {
-        'file': (io.BytesIO(b'abcdef'), 'test.jpg')
-    }
-
-    with app.app_context():
-        # hit the api
-        rv = client.post('/photo/',
-                         data=data,
-                         content_type='multipart/form-data',
-                         headers=test_user.auth_headers)
-
-        return rv.get_json()['id']
 
 
 def test_upload_photo_without_credentials(app, client, test_user):

@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["items", "page", "has_next"],
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "checkins.common.json#/definitions/checkin"
+      }
+    },
+    "page": {
+      "type": "integer"
+    },
+    "has_next": {
+      "type": "boolean"
+    }
+  }
+}
