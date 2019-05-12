@@ -35,7 +35,7 @@ class CheckInResource(MethodResource):
 
 
 @doc(
-    tags=['Photos'],
+    tags=['Check In'],
     security=security_rules
 )
 class UserCheckInListResource(MethodResource):
