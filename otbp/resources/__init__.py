@@ -65,3 +65,8 @@ def init_app(app):
     app.add_url_rule('/checkin/user/<int:user_id>',
                      view_func=UserCheckInListResource.as_view('UserCheckInListResource'))
     docs.register(UserCheckInListResource, endpoint='UserCheckInListResource')
+
+    from .geocache import GeocacheLocationResource
+    app.add_url_rule('/geocache/<string:location>',
+                     view_func=GeocacheLocationResource.as_view('GeocacheLocationResource'))
+    docs.register(GeocacheLocationResource, endpoint='GeocacheLocationResource')

@@ -11,7 +11,7 @@ from otbp.schemas import ErrorSchema, CheckInSchema, PaginatedCheckInSchema
 
 
 @doc(
-    tags=['Photos'],
+    tags=['Check In'],
     security=security_rules
 )
 class CheckInResource(MethodResource):
