@@ -15,14 +15,22 @@ def create_db():
     """
     from faker import Faker
     from faker.providers import geo
+    from flask import current_app
 
+    import os
     import random
+    import shutil
 
-    from otbp.models import db, UserModel, CheckInModel, GeoCacheModel
+    from otbp.models import db, UserModel, CheckInModel, GeoCacheModel, ImageModel
     from otbp.praetorian import guard
 
+    # delete and recreate the database
     db.drop_all()
     db.create_all()
+
+    # delete and recreate the upload directory
+    shutil.rmtree(current_app.config['UPLOAD_DIRECTORY'])
+    os.makedirs(current_app.config['UPLOAD_DIRECTORY'])
 
     fake = Faker()
     fake.add_provider(geo)
@@ -33,6 +41,28 @@ def create_db():
 
     db.session.add(user)
 
+    images = []
+
+    for index in range(1, 6):
+        image = ImageModel(user=user)
+        db.session.add(image)
+        db.session.commit()
+
+        filepath = os.path.join(os.getcwd(), 'testdata', 'images', f'pic{index}.JPG')
+        ext = filepath.rsplit('.', 1)[1].lower()
+
+        directory = current_app.config['UPLOAD_DIRECTORY']
+        saved_filename = f'{image.id}.{ext}'
+        saved_filepath = os.path.join(directory, saved_filename)
+
+        shutil.copy(filepath, saved_filepath)
+
+        image.filepath = saved_filepath
+        image.filename = saved_filename
+
+        db.session.commit()
+        images.append(image)
+
     for i in range(0, 25):
         geocache = GeoCacheModel(lat=fake.latitude(), lng=fake.longitude())
         checkin = CheckInModel(text=fake.sentence(),
@@ -41,9 +71,13 @@ def create_db():
                                final_distance=random.random() * 20,
                                geocache=geocache,
                                user=user)
+
+        if random.choice((True, False)):
+            checkin.image = random.choice(images)
+
         db.session.add(geocache)
         db.session.add(checkin)
 
     db.session.commit()
 
-    print('Seeded 26 items into the database.')
+    print('Seeded 31 items into the database.')
