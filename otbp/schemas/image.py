@@ -8,3 +8,4 @@ class ImageSchema(ma.Schema):
         strict = True
 
     id = marshmallow.fields.Int()
+    filename = marshmallow.fields.Str()

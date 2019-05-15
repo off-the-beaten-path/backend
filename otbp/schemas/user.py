@@ -31,3 +31,4 @@ class UserSchema(ma.Schema):
         strict = True
 
     id = marshmallow.fields.Int()
+    username = marshmallow.fields.Str()

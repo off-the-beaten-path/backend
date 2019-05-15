@@ -11,6 +11,21 @@
           "type": "integer"
         }
       }
+    },
+    "image": {
+      "type": ["object", "null"],
+      "required": [
+        "id",
+        "filename"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "filename": {
+          "type": "string"
+        }
+      }
     }
   }
 }

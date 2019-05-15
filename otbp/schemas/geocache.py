@@ -1,7 +1,7 @@
 import marshmallow
 
 from otbp.schemas import ma
-from otbp.schemas.checkin import LocationSchema
+from otbp.schemas.location import LocationSchema
 
 
 class GeoCacheSchema(ma.Schema):

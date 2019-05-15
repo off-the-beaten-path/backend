@@ -4,11 +4,46 @@
     "checkin": {
       "type": "object",
       "required": [
-        "id"
+        "id",
+        "text",
+        "location",
+        "geocache",
+        "final_distance",
+        "created_at"
       ],
       "properties": {
         "id": {
           "type": "integer"
+        },
+        "text": {
+          "type": "string"
+        },
+        "final_distance": {
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "location": {
+          "type": "object",
+          "required": [
+            "lat",
+            "lng"
+          ],
+          "properties": {
+            "lat": {
+              "type": "number"
+            },
+            "lng": {
+              "type": "number"
+            }
+          }
+        },
+        "geocache": {
+          "$ref": "geocache.common.json#/definitions/geocache"
+        },
+        "image": {
+          "$ref": "photo.common.json#/definitions/image"
         }
       }
     }

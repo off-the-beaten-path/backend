@@ -11,6 +11,17 @@
           "type": "string"
         }
       }
+    },
+    "user": {
+      "type": "object",
+      "required": [
+        "username"
+      ],
+      "properties": {
+        "username": {
+          "type": "string"
+        }
+      }
     }
   }
 }

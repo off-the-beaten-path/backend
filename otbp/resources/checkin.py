@@ -58,9 +58,8 @@ class UserCheckInListPaginatedResource(MethodResource):
     @marshal_with(PaginatedCheckInSchema, 200)
     @marshal_with(ErrorSchema, code=401)
     @flask_praetorian.auth_required
-    def get(self, user_id, page=0):
-        if user_id != flask_praetorian.current_user_id():
-            return {'message': 'Unauthorized'}, 401
+    def get(self, page=0):
+        user_id = flask_praetorian.current_user_id()
 
         checkins = CheckInModel.query \
             .filter_by(user_id=user_id) \
@@ -79,9 +78,8 @@ class UserCheckInListResource(MethodResource):
     @marshal_with(CheckInListSchema, 200)
     @marshal_with(ErrorSchema, code=401)
     @flask_praetorian.auth_required
-    def get(self, user_id):
-        if user_id != flask_praetorian.current_user_id():
-            return {'message': 'Unauthorized'}, 401
+    def get(self):
+        user_id = flask_praetorian.current_user_id()
 
         checkins = CheckInModel.query \
             .filter_by(user_id=user_id) \
