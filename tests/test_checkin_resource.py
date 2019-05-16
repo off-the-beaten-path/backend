@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from freezegun import freeze_time
 
+import operator
 import pytest
 
 from otbp.models import db, GeoCacheModel, CheckInModel
@@ -32,43 +33,45 @@ def test_other_location(app):
 @pytest.fixture
 def test_checkins(app, test_user, test_other_user, test_location, test_image, test_other_location):
     with app.app_context():
-        db.session.add(CheckInModel(text='test user, test location, no image',
-                                    lat=1.0,
-                                    lng=1.0,
-                                    final_distance=2.0,
-                                    user_id=test_user.id,
-                                    geocache_id=test_location))
+        checkins = [
+            CheckInModel(text='test user, test location, no image',
+                         lat=1.0,
+                         lng=1.0,
+                         final_distance=2.0,
+                         user_id=test_user.id,
+                         geocache_id=test_location),
+            CheckInModel(text='test user, test location, test image',
+                         lat=1.0,
+                         lng=1.0,
+                         final_distance=2.0,
+                         user_id=test_user.id,
+                         image_id=test_image,
+                         geocache_id=test_location),
+            CheckInModel(text='test user, test other location, no image',
+                         lat=1.0,
+                         lng=1.0,
+                         final_distance=2.0,
+                         user_id=test_user.id,
+                         geocache_id=test_other_location),
+            CheckInModel(text='test other user, test location, no image',
+                         lat=1.0,
+                         lng=1.0,
+                         final_distance=2.0,
+                         user_id=test_other_user.id,
+                         geocache_id=test_location),
+            CheckInModel(text='test other user, test other location, no image',
+                         lat=1.0,
+                         lng=1.0,
+                         final_distance=2.0,
+                         user_id=test_other_user.id,
+                         geocache_id=test_other_location)
+        ]
 
-        db.session.add(CheckInModel(text='test user, test location, test image',
-                                    lat=1.0,
-                                    lng=1.0,
-                                    final_distance=2.0,
-                                    user_id=test_user.id,
-                                    image_id=test_image,
-                                    geocache_id=test_location))
-
-        db.session.add(CheckInModel(text='test user, test other location, no image',
-                                    lat=1.0,
-                                    lng=1.0,
-                                    final_distance=2.0,
-                                    user_id=test_user.id,
-                                    geocache_id=test_other_location))
-
-        db.session.add(CheckInModel(text='test other user, test location, no image',
-                                    lat=1.0,
-                                    lng=1.0,
-                                    final_distance=2.0,
-                                    user_id=test_other_user.id,
-                                    geocache_id=test_location))
-
-        db.session.add(CheckInModel(text='test other user, test other location, no image',
-                                    lat=1.0,
-                                    lng=1.0,
-                                    final_distance=2.0,
-                                    user_id=test_other_user.id,
-                                    geocache_id=test_other_location))
+        db.session.add_all(checkins)
 
         db.session.commit()
+
+        return list(map(operator.attrgetter('id'), checkins))
 
 
 def test_create_checkin_without_image(app, client, test_user, test_location):
@@ -240,3 +243,20 @@ def test_retrieve_user_checkins_all(app, client, test_user):
         for checkin in json_data['items']:
             assert CheckInModel.query.get(checkin['id']).user.id == test_user.id
 
+
+def test_retrieve_user_checkin(app, client, test_user, test_checkins):
+    checkin_id, *_ = test_checkins
+
+    # hit the api
+    rv = client.get(f'/checkin/user/{checkin_id}',
+                    headers=test_user.auth_headers)
+
+    assert rv.status_code == 200
+
+    json_data = rv.get_json()
+
+    validate_json(json_data, 'checkin.json')
+
+    # confirm that user checkins are only for this user
+    with app.app_context():
+        assert CheckInModel.query.get(json_data['id']).user.id == test_user.id

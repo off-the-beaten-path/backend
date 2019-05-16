@@ -58,7 +58,7 @@ def init_app(app):
     app.add_url_rule('/image/', view_func=ImageUploadResource.as_view('ImageUploadResource'))
     docs.register(ImageUploadResource, endpoint='ImageUploadResource')
 
-    from .checkin import CheckInResource, UserCheckInListPaginatedResource, UserCheckInListResource
+    from .checkin import CheckInResource, UserCheckInListPaginatedResource, UserCheckInListResource, UserCheckInResource
     app.add_url_rule('/checkin/', view_func=CheckInResource.as_view('CheckInResource'))
     docs.register(CheckInResource, endpoint='CheckInResource')
 
@@ -69,6 +69,10 @@ def init_app(app):
     app.add_url_rule('/checkin/user/',
                      view_func=UserCheckInListResource.as_view('UserCheckInListResource'))
     docs.register(UserCheckInListResource, endpoint='UserCheckInListResource')
+
+    app.add_url_rule('/checkin/user/<int:checkin_id>',
+                     view_func=UserCheckInResource.as_view('UserCheckInResource'))
+    docs.register(UserCheckInResource, endpoint='UserCheckInResource')
 
     from .geocache import GeoCacheLocationResource
     app.add_url_rule('/geocache/<string:location>',

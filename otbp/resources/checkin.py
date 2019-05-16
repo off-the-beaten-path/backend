@@ -8,7 +8,7 @@ import marshmallow
 
 from otbp.resources import security_rules
 from otbp.models import db, CheckInModel, GeoCacheModel
-from otbp.schemas import ErrorSchema, CheckInSchema, PaginatedCheckInSchema, CheckInListSchema
+from otbp.schemas import ErrorSchema, CheckInSchema, PaginatedCheckInSchema, CheckInListSchema, CheckInResponseSchema
 from otbp.utils import geodistance
 
 
@@ -91,3 +91,22 @@ class UserCheckInListResource(MethodResource):
         }
 
         return resp, 200
+
+@doc(
+    tags=['Check In'],
+    security=security_rules
+)
+class UserCheckInResource(MethodResource):
+
+    @marshal_with(CheckInResponseSchema, 200)
+    @marshal_with(ErrorSchema, code=401)
+    @flask_praetorian.auth_required
+    def get(self, checkin_id):
+        user_id = flask_praetorian.current_user_id()
+
+        checkin = CheckInModel.query.get(checkin_id)
+
+        if checkin.user_id != user_id:
+            return {'message': 'Unauthorized'}, 401
+
+        return checkin, 200
