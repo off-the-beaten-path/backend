@@ -58,9 +58,9 @@ def init_app(app):
     app.add_url_rule('/image/', view_func=ImageUploadResource.as_view('ImageUploadResource'))
     docs.register(ImageUploadResource, endpoint='ImageUploadResource')
 
-    from .checkin import CheckInResource, UserCheckInListPaginatedResource, UserCheckInListResource, UserCheckInResource
-    app.add_url_rule('/checkin/', view_func=CheckInResource.as_view('CheckInResource'))
-    docs.register(CheckInResource, endpoint='CheckInResource')
+    from .checkin import CreateCheckInResource, UserCheckInListPaginatedResource, UserCheckInListResource, CheckInResource
+    app.add_url_rule('/checkin', view_func=CreateCheckInResource.as_view('CreateCheckInResource'))
+    docs.register(CreateCheckInResource, endpoint='CreateCheckInResource')
 
     app.add_url_rule('/checkin/user/paginated',
                      view_func=UserCheckInListPaginatedResource.as_view('UserCheckInListPaginatedResource'))
@@ -70,9 +70,9 @@ def init_app(app):
                      view_func=UserCheckInListResource.as_view('UserCheckInListResource'))
     docs.register(UserCheckInListResource, endpoint='UserCheckInListResource')
 
-    app.add_url_rule('/checkin/user/<int:checkin_id>',
-                     view_func=UserCheckInResource.as_view('UserCheckInResource'))
-    docs.register(UserCheckInResource, endpoint='UserCheckInResource')
+    app.add_url_rule('/checkin/<int:checkin_id>',
+                     view_func=CheckInResource.as_view('CheckInResource'))
+    docs.register(CheckInResource, endpoint='CheckInResource')
 
     from .geocache import GeoCacheLocationResource
     app.add_url_rule('/geocache/<string:location>',

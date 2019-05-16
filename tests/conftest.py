@@ -95,3 +95,35 @@ def test_image(app, client, test_user):
                          headers=test_user.auth_headers)
 
         return rv.get_json()['id']
+
+
+@pytest.fixture
+def test_other_image(app, client, test_user):
+    data = {
+        'file': (io.BytesIO(b'ghijklmnop'), 'another.jpg')
+    }
+
+    with app.app_context():
+        # hit the api
+        rv = client.post('/image/',
+                         data=data,
+                         content_type='multipart/form-data',
+                         headers=test_user.auth_headers)
+
+        return rv.get_json()['id']
+
+
+@pytest.fixture
+def test_other_user_image(app, client, test_other_user):
+    data = {
+        'file': (io.BytesIO(b'rstuvz'), 'otheruser.jpg')
+    }
+
+    with app.app_context():
+        # hit the api
+        rv = client.post('/image/',
+                         data=data,
+                         content_type='multipart/form-data',
+                         headers=test_other_user.auth_headers)
+
+        return rv.get_json()['id']

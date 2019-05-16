@@ -2,12 +2,11 @@ import marshmallow
 
 from otbp.schemas import ma
 from otbp.schemas.location import LocationSchema
-from otbp.schemas.user import UserSchema
 from otbp.schemas.geocache import GeoCacheSchema
 from otbp.schemas.image import ImageSchema
 
 
-class CheckInSchema(ma.Schema):
+class CheckInCreateSchema(ma.Schema):
     class Meta:
         strict = True
 
@@ -17,7 +16,13 @@ class CheckInSchema(ma.Schema):
     geocache_id = marshmallow.fields.Int(required=True)
     image_id = marshmallow.fields.Int(required=False)
 
-    user = marshmallow.fields.Nested(UserSchema)
+
+class CheckInUpdateSchema(ma.Schema):
+    class Meta:
+        strict = True
+
+    text = marshmallow.fields.Str(required=False)
+    image_id = marshmallow.fields.Int(required=False, allow_none=True)
 
 
 class CheckInResponseSchema(ma.Schema):

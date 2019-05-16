@@ -7,8 +7,8 @@ import flask_praetorian
 import marshmallow
 
 from otbp.resources import security_rules
-from otbp.models import db, CheckInModel, GeoCacheModel
-from otbp.schemas import ErrorSchema, CheckInSchema, PaginatedCheckInSchema, CheckInListSchema, CheckInResponseSchema
+from otbp.models import db, CheckInModel, GeoCacheModel, ImageModel
+from otbp.schemas import ErrorSchema, CheckInCreateSchema, CheckInUpdateSchema, PaginatedCheckInSchema, CheckInListSchema, CheckInResponseSchema
 from otbp.utils import geodistance
 
 
@@ -16,12 +16,13 @@ from otbp.utils import geodistance
     tags=['Check In'],
     security=security_rules
 )
-class CheckInResource(MethodResource):
+class CreateCheckInResource(MethodResource):
 
-    @use_kwargs(CheckInSchema)
+    @use_kwargs(CheckInCreateSchema)
+    @marshal_with(CheckInResponseSchema, code=201)
     @marshal_with(ErrorSchema, code=400)
     @flask_praetorian.auth_required
-    def post(self, text, location, geocache_id, image_id=None):
+    def post(self, location, geocache_id, text=None, image_id=None):
         geocache = GeoCacheModel.query.get(geocache_id)
 
         if date.today() != geocache.created_at.date():
@@ -43,7 +44,7 @@ class CheckInResource(MethodResource):
         db.session.add(checkin)
         db.session.commit()
 
-        return 'OK', 201
+        return checkin, 201
 
 
 @doc(
@@ -96,7 +97,7 @@ class UserCheckInListResource(MethodResource):
     tags=['Check In'],
     security=security_rules
 )
-class UserCheckInResource(MethodResource):
+class CheckInResource(MethodResource):
 
     @marshal_with(CheckInResponseSchema, 200)
     @marshal_with(ErrorSchema, code=401)
@@ -108,5 +109,34 @@ class UserCheckInResource(MethodResource):
 
         if checkin.user_id != user_id:
             return {'message': 'Unauthorized'}, 401
+
+        return checkin, 200
+
+    @use_kwargs(CheckInUpdateSchema)
+    @marshal_with(CheckInResponseSchema, code=200)
+    @marshal_with(ErrorSchema, code=400)
+    @flask_praetorian.auth_required
+    def put(self, checkin_id, text=None, image_id=None):
+        checkin = CheckInModel.query.get(checkin_id)
+
+        if checkin.user_id != flask_praetorian.current_user_id():
+            return {'message': 'Unauthorized'}, 401
+
+        if image_id is not None:
+            # Special id to remove the image from the checkin
+            if image_id == -1:
+                checkin.image_id = None
+            else:
+                image = ImageModel.query.get(image_id)
+
+                if image is not None:
+                    if image.user_id != flask_praetorian.current_user_id():
+                        return {'message': 'Unauthorized'}, 401
+
+                    checkin.image_id = image_id
+
+        checkin.text = text
+
+        db.session.commit()
 
         return checkin, 200
