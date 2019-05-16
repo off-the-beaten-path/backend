@@ -27,7 +27,8 @@
           "type": "object",
           "required": [
             "lat",
-            "lng"
+            "lng",
+            "geohash"
           ],
           "properties": {
             "lat": {
@@ -35,6 +36,9 @@
             },
             "lng": {
               "type": "number"
+            },
+            "geohash": {
+              "type": "string"
             }
           }
         },
