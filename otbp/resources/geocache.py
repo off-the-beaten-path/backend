@@ -1,8 +1,9 @@
-from geopy import Point
-from geopy.distance import vincenty
+from datetime import date
 from flask import current_app
 from flask_apispec import marshal_with, doc
 from flask_apispec.views import MethodResource
+from geopy import Point
+from geopy.distance import vincenty
 from sqlalchemy.sql import func
 
 import flask_praetorian
@@ -32,7 +33,7 @@ class GeoCacheLocationResource(MethodResource):
         target_list = GeoCacheModel.query \
             .filter(
             # check for results created today
-            func.date(GeoCacheModel.created_at) == func.current_date()
+            func.date(GeoCacheModel.created_at) == date.today()
         ) \
             .all()
 

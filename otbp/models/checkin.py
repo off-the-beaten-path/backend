@@ -6,7 +6,7 @@ from otbp.models import db
 class CheckInModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime,
-                           default=datetime.utcnow,
+                           default=datetime.now,
                            nullable=False)
 
     text = db.Column(db.String(140), nullable=False)

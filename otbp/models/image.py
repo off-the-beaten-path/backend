@@ -7,7 +7,7 @@ class ImageModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     created_at = db.Column(db.DateTime,
-                           default=datetime.utcnow,
+                           default=datetime.now,
                            nullable=False)
 
     filename = db.Column(db.String(128), nullable=True)
