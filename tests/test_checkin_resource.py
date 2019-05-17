@@ -256,6 +256,28 @@ def test_update_checkin(app, client, test_user, test_other_image, test_checkins)
     assert json_data['image']['id'] == data['image_id']
 
 
+def test_update_checkin_without_text(app, client, test_user, test_other_image, test_checkins):
+    checkin_id, *_ = test_checkins
+
+    data = {
+        'text': '',
+        'image_id': test_other_image
+    }
+
+    rv = client.put(f'/checkin/{checkin_id}',
+                    json=data,
+                    headers=test_user.auth_headers)
+
+    assert rv.status_code == 200
+
+    json_data = rv.get_json()
+
+    validate_json(json_data, 'checkin.json')
+
+    assert json_data['text'] == data['text']
+    assert json_data['image']['id'] == data['image_id']
+
+
 def test_update_checkin_remove_image(app, client, test_user, test_checkins):
     checkin_id, *_ = test_checkins
 

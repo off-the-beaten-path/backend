@@ -9,7 +9,7 @@ class CheckInModel(db.Model):
                            default=datetime.now,
                            nullable=False)
 
-    text = db.Column(db.String(140), nullable=True)
+    text = db.Column(db.String(140), default='')
 
     lat = db.Column(db.Float, nullable=False)
     lng = db.Column(db.Float, nullable=False)
