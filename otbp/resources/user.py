@@ -6,13 +6,14 @@ import flask_praetorian
 import re
 
 from otbp.resources import security_rules
-from otbp.models import db, UserModel
+from otbp.models import db, UserModel, CheckInModel, ImageModel
 from otbp.schemas import (
     UserAuthSchema,
     UserLoginRegisterSchema,
     UserChangePasswordSchema,
     ErrorSchema,
-    DefaultApiResponseSchema
+    DefaultApiResponseSchema,
+    UserDeleteSchema
 )
 from otbp.praetorian import guard
 
@@ -119,3 +120,29 @@ class UserRefreshResource(MethodResource):
         return {
             'jwt': new_token
         }
+
+
+@doc(
+    tags=['User'],
+    security=security_rules
+)
+class UserDeleteResource(MethodResource):
+
+    @use_kwargs(UserDeleteSchema)
+    @marshal_with(ErrorSchema, code=400)
+    @flask_praetorian.auth_required
+    def post(self, password):
+
+        user = flask_praetorian.current_user()
+
+        if not guard._verify_password(password, user.password):
+            return {'message': 'Invalid password.'}, 400
+
+        # remove all images and checkins
+        CheckInModel.query.filter_by(user=user).delete()
+        ImageModel.query.filter_by(user=user).delete()
+
+        db.session.delete(user)
+        db.session.commit()
+
+        return 'OK', 200

@@ -38,7 +38,7 @@ def init_app(app):
 
     docs.init_app(app)
 
-    from .user import UserRegisterResource, UserLoginResource, UserRefreshResource, UserPasswordResource
+    from .user import UserRegisterResource, UserLoginResource, UserRefreshResource, UserPasswordResource, UserDeleteResource
     app.add_url_rule('/user/register', view_func=UserRegisterResource.as_view('UserRegisterResource'))
     docs.register(UserRegisterResource, endpoint='UserRegisterResource')
 
@@ -50,6 +50,9 @@ def init_app(app):
 
     app.add_url_rule('/user/password', view_func=UserPasswordResource.as_view('UserPasswordResource'))
     docs.register(UserPasswordResource, endpoint='UserPasswordResource')
+
+    app.add_url_rule('/user/delete', view_func=UserDeleteResource.as_view('UserDeleteResource'))
+    docs.register(UserDeleteResource, endpoint='UserDeleteResource')
 
     from .image import ImageRetrievalResource, ImageUploadResource
     app.add_url_rule('/image/<string:filename>', view_func=ImageRetrievalResource.as_view('ImageRetrievalResource'))

@@ -3,7 +3,7 @@ from freezegun import freeze_time
 
 import pytest
 
-from otbp.models import UserModel
+from otbp.models import UserModel, CheckInModel, ImageModel
 from otbp.praetorian import guard
 
 from tests.support.assertions import validate_json
@@ -242,3 +242,30 @@ def test_invalid_change_password(client, test_user):
 
     # confirm login with new password failed
     assert 'Invalid email or password' in rv.get_json()['message']
+
+
+@pytest.mark.usefixtures('test_checkins')
+def test_delete_user_account(app, client, test_user):
+    data = {
+        'password': test_user.password
+    }
+
+    # hit the api
+    rv = client.post('/user/delete',
+                     json=data,
+                     headers=test_user.auth_headers)
+
+    assert rv.status_code == 200
+
+    with app.app_context():
+        # confirm that user is deleted from database
+        user = UserModel.query.get(test_user.id)
+
+        assert user is None
+
+        # confirm that checkins and images are deleted
+        checkin_count = CheckInModel.query.filter_by(user_id=test_user.id).count()
+        image_count = ImageModel.query.filter_by(user_id=test_user.id).count()
+
+        assert checkin_count == 0
+        assert image_count == 0

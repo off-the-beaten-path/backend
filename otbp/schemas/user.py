@@ -18,6 +18,13 @@ class UserLoginRegisterSchema(ma.Schema):
     password = marshmallow.fields.Str()
 
 
+class UserDeleteSchema(ma.Schema):
+    class Meta:
+        strict = True
+
+    password = marshmallow.fields.Str()
+
+
 class UserChangePasswordSchema(ma.Schema):
     class Meta:
         strict = True
