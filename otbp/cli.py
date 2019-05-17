@@ -4,12 +4,13 @@ import click
 
 
 def init_cli(app):
+    app.cli.add_command(seed_db)
     app.cli.add_command(create_db)
 
 
 @click.command()
 @with_appcontext
-def create_db():
+def seed_db():
     """
     create the database
     """
@@ -81,3 +82,18 @@ def create_db():
     db.session.commit()
 
     print('Seeded 31 items into the database.')
+
+
+@click.command()
+@with_appcontext
+def create_db():
+    """
+    create the database
+    """
+    from otbp.models import db
+
+    # delete and recreate the database
+    db.drop_all()
+    db.create_all()
+
+    print('Created the database')
