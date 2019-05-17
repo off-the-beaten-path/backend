@@ -213,6 +213,25 @@ def test_create_checkin_without_location(app, client, test_user, test_location):
 
 
 @pytest.mark.usefixtures('test_checkins')
+def test_create_checkin_previously_checked_in(app, client, test_user, test_location):
+    data = {
+        'geocache_id': test_location,
+        'text': 'Hello, world!',
+        'location': {
+            'lat': 42.1,
+            'lng': 42.1
+        },
+    }
+
+    # hit the api
+    rv = client.post(f'/checkin',
+                     json=data,
+                     headers=test_user.auth_headers)
+
+    assert rv.status_code == 400
+
+
+@pytest.mark.usefixtures('test_checkins')
 def test_retrieve_user_checkins_paginated(app, client, test_user):
     # hit the api
     rv = client.get(f'/checkin/user/paginated',

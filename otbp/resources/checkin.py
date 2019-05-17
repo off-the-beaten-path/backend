@@ -25,6 +25,14 @@ class CreateCheckInResource(MethodResource):
     def post(self, location, geocache_id, text=None, image_id=None):
         geocache = GeoCacheModel.query.get(geocache_id)
 
+        # prevent user from checking into the same geocache twice
+        checkin = CheckInModel.query \
+            .filter_by(geocache_id=geocache_id, user_id=flask_praetorian.current_user_id()) \
+            .first()
+        
+        if checkin is not None:
+            return {'message': 'You cannot check into the same geocache more than once.'}, 400
+
         if date.today() != geocache.created_at.date():
             return {'message': 'Expired geocache. You cannot check into a geocache after one day.'}, 400
 
