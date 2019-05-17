@@ -1,9 +1,13 @@
+from flask import send_file, current_app
 from flask_apispec import marshal_with, use_kwargs, doc
 from flask_apispec.views import MethodResource
 from flask_praetorian.exceptions import AuthenticationError, MissingUserError
+from io import BytesIO
 
 import flask_praetorian
+import os
 import re
+import zipfile
 
 from otbp.resources import security_rules
 from otbp.models import db, UserModel, CheckInModel, ImageModel
@@ -146,3 +150,35 @@ class UserDeleteResource(MethodResource):
         db.session.commit()
 
         return 'OK', 200
+
+
+@doc(
+    tags=['User'],
+    security=security_rules
+)
+class UserExportResource(MethodResource):
+
+    @marshal_with(ErrorSchema, code=400)
+    @flask_praetorian.auth_required
+    def get(self):
+
+        user = flask_praetorian.current_user()
+
+        # create a zip file of all user images plus a csv file containing checkins
+        byte_io = BytesIO()
+
+        checkins = CheckInModel.query.filter_by(user=user)
+        checkin_file_content = ''
+
+        images = ImageModel.query.filter_by(user=user)
+
+        with zipfile.ZipFile(byte_io, 'w') as archive:
+            for image in images:
+                full_path = os.path.join(current_app.config['UPLOAD_DIRECTORY'], image.filename)
+                archive.write(full_path, image.filename)
+
+        return send_file(byte_io,
+                         mimetype='application/zip',
+                         as_attachment=True,
+                         attachment_filename=f'{user.id}.zip')
+

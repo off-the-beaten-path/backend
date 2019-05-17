@@ -1,7 +1,9 @@
 from datetime import date, timedelta
 from freezegun import freeze_time
+from io import BytesIO
 
 import pytest
+import zipfile
 
 from otbp.models import UserModel, CheckInModel, ImageModel
 from otbp.praetorian import guard
@@ -269,3 +271,17 @@ def test_delete_user_account(app, client, test_user):
 
         assert checkin_count == 0
         assert image_count == 0
+
+
+def test_export_user_data(app, client, test_user):
+
+    # hit the api
+    rv = client.get('/user/export',
+                    headers=test_user.auth_headers)
+
+    assert rv.status_code == 200
+
+    bytes_io = BytesIO(rv.get_data())
+
+    with zipfile.ZipFile(bytes_io) as archive:
+        archive.testzip()
