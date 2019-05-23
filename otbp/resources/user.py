@@ -2,8 +2,9 @@ from flask import send_file, current_app
 from flask_apispec import marshal_with, use_kwargs, doc
 from flask_apispec.views import MethodResource
 from flask_praetorian.exceptions import AuthenticationError, MissingUserError
-from io import BytesIO
+from io import BytesIO, StringIO
 
+import csv
 import flask_praetorian
 import os
 import re
@@ -168,14 +169,36 @@ class UserExportResource(MethodResource):
         byte_io = BytesIO()
 
         checkins = CheckInModel.query.filter_by(user=user)
-        checkin_file_content = ''
+        checkin_file_content = StringIO()
+
+        fieldnames = ('id', 'created_at', 'text', 'lat', 'lng', 'final_distance', 'image_id', )
+
+        writer = csv.DictWriter(checkin_file_content, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for checkin in checkins:
+            writer.writerow({
+                'id': checkin.id,
+                'created_at': checkin.created_at,
+                'text': checkin.text,
+                'lat': checkin.lat,
+                'lng': checkin.lng,
+                'final_distance': checkin.final_distance,
+                'image_id': checkin.image_id
+            })
 
         images = ImageModel.query.filter_by(user=user)
 
         with zipfile.ZipFile(byte_io, 'w') as archive:
+            # write checkin
+            archive.writestr('checkins.csv', checkin_file_content.getvalue())
+
+            # write images
             for image in images:
                 full_path = os.path.join(current_app.config['UPLOAD_DIRECTORY'], image.filename)
                 archive.write(full_path, image.filename)
+
+        byte_io.seek(0)
 
         return send_file(byte_io,
                          mimetype='application/zip',

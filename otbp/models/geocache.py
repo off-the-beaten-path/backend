@@ -11,3 +11,9 @@ class GeoCacheModel(db.Model):
     lat = db.Column(db.Float, nullable=False)
     lng = db.Column(db.Float, nullable=False)
 
+    checkin = db.relationship('CheckInModel')
+
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('user_model.id'),
+                        nullable=False)
+    user = db.relationship('UserModel')

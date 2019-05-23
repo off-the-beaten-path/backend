@@ -65,7 +65,7 @@ def seed_db():
         images.append(image)
 
     for i in range(0, 25):
-        geocache = GeoCacheModel(lat=fake.latitude(), lng=fake.longitude())
+        geocache = GeoCacheModel(lat=fake.latitude(), lng=fake.longitude(), user=user)
         checkin = CheckInModel(text=fake.sentence(),
                                lat=fake.latitude(),
                                lng=fake.longitude(),

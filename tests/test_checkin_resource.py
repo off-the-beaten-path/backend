@@ -1,6 +1,3 @@
-from datetime import date, timedelta
-from freezegun import freeze_time
-
 import pytest
 
 from otbp.models import db, GeoCacheModel, CheckInModel
@@ -90,30 +87,6 @@ def test_create_checkin_without_geocache(app, client, test_user):
     assert rv.status_code == 422
 
 
-def test_create_checkin_with_old_geocache(app, client, test_user, test_location):
-    data = {
-        'geocache_id': test_location,
-        'text': 'Hello, world!',
-        'location': {
-            'lat': 42.1,
-            'lng': 42.1
-        },
-    }
-
-    today = date.today()
-    future = today + timedelta(days=1)
-
-    # move one day into the future in order to test that expired (geocaches are valid only on the date of creation)
-    # geocaches cannot be checked into
-    with freeze_time(future):
-        # hit the api
-        rv = client.post(f'/checkin',
-                         json=data,
-                         headers=test_user.auth_headers)
-
-        assert rv.status_code == 400
-
-
 def test_create_checkin_too_far_away(app, client, test_user, test_location):
     # attempt to check in while laughably far away
     data = {
@@ -122,6 +95,23 @@ def test_create_checkin_too_far_away(app, client, test_user, test_location):
         'location': {
             'lat': 0.1,
             'lng': 0.1
+        }
+    }
+
+    # hit the api
+    rv = client.post(f'/checkin',
+                     json=data,
+                     headers=test_user.auth_headers)
+
+    assert rv.status_code == 400
+
+    # attempt to check in while quite close, but not close enough
+    data = {
+        'geocache_id': test_location,
+        'text': 'Hello, world!',
+        'location': {
+            'lat': 42.0002,
+            'lng': 42.0001
         }
     }
 

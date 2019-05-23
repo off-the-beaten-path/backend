@@ -11,6 +11,7 @@ def init_app(app):
 
 
 # Collect schemas here for universal/simplified imports
+from otbp.schemas.location import LocationSchema
 from otbp.schemas.user import UserAuthSchema, UserLoginRegisterSchema, UserChangePasswordSchema, UserSchema, UserDeleteSchema
 from otbp.schemas.error import ErrorSchema
 from otbp.schemas.image import ImageSchema

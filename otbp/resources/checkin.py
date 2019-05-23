@@ -1,4 +1,3 @@
-from datetime import date
 from flask import current_app
 from flask_apispec import marshal_with, doc, use_kwargs
 from flask_apispec.views import MethodResource
@@ -32,9 +31,6 @@ class CreateCheckInResource(MethodResource):
         
         if checkin is not None:
             return {'message': 'You cannot check into the same geocache more than once.'}, 400
-
-        if date.today() != geocache.created_at.date():
-            return {'message': 'Expired geocache. You cannot check into a geocache after one day.'}, 400
 
         final_distance = geodistance(location['lat'], location['lng'], geocache.lat, geocache.lng)
 
