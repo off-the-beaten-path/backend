@@ -39,6 +39,14 @@ def create_app():
 
     init_praetorian(app)
 
+    from .mail import init_mail
+
+    init_mail(app)
+
+    from .utils.security import init_sec
+
+    init_sec(app)
+
     # app scripts
     from .cli import init_cli
 

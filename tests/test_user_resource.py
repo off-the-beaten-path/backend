@@ -3,8 +3,10 @@ from freezegun import freeze_time
 from io import BytesIO
 
 import pytest
+import re
 import zipfile
 
+from otbp.mail import mail
 from otbp.models import UserModel, CheckInModel, ImageModel
 from otbp.praetorian import guard
 
@@ -285,3 +287,45 @@ def test_export_user_data(app, client, test_user):
 
     with zipfile.ZipFile(bytes_io) as archive:
         archive.testzip()
+
+
+def test_forgot_password(app, client, test_user):
+    with app.app_context():
+        with mail.record_messages() as outbox:
+            data = {
+                'email': test_user.email
+            }
+
+            # hit the api
+            rv = client.post('/user/password/forgot',
+                             json=data)
+
+            assert rv.status_code == 200
+
+            assert len(outbox) == 1
+
+            # grab the jwt from the email
+            result = re.search(
+                r'/auth/reset/([\S]+)',
+                outbox[-1].body
+            )
+
+            assert result
+
+            token = result.group(1)
+
+            # token is for validation
+            data = {
+                'token': token,
+                'password': 'unique123456'
+            }
+
+            # hit the api
+            rv = client.post('/user/password/reset',
+                             json=data)
+
+            assert rv.status_code == 200
+
+            json_data = rv.get_json()
+
+            assert 'jwt' in json_data
