@@ -80,7 +80,11 @@ def init_app(app):
                      view_func=CheckInResource.as_view('CheckInResource'))
     docs.register(CheckInResource, endpoint='CheckInResource')
 
-    from .geocache import GeoCacheLocationResource
-    app.add_url_rule('/geocache/<string:location>',
+    from .geocache import GeoCacheLocationResource, CreateGeoCacheResource
+    app.add_url_rule('/geocache/active',
                      view_func=GeoCacheLocationResource.as_view('GeoCacheLocationResource'))
     docs.register(GeoCacheLocationResource, endpoint='GeoCacheLocationResource')
+
+    app.add_url_rule('/geocache',
+                     view_func=CreateGeoCacheResource.as_view('CreateGeoCacheResource'))
+    docs.register(CreateGeoCacheResource, endpoint='CreateGeoCacheResource')

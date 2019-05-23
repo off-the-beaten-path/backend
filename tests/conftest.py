@@ -129,10 +129,11 @@ def test_other_user_image(app, client, test_other_user):
 
         return rv.get_json()['id']
 
+
 @pytest.fixture
-def test_location(app):
+def test_location(app, test_user):
     with app.app_context():
-        location = GeoCacheModel(lat=42.0, lng=42.0)
+        location = GeoCacheModel(lat=42.0, lng=42.0, user_id=test_user.id)
         db.session.add(location)
         db.session.commit()
 
@@ -140,9 +141,9 @@ def test_location(app):
 
 
 @pytest.fixture
-def test_other_location(app):
+def test_other_location(app, test_other_user):
     with app.app_context():
-        location = GeoCacheModel(lat=84.0, lng=84.0)
+        location = GeoCacheModel(lat=84.0, lng=84.0, user_id=test_other_user.id)
         db.session.add(location)
         db.session.commit()
 
