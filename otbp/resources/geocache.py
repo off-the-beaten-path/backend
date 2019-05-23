@@ -23,6 +23,15 @@ class CreateGeoCacheResource(MethodResource):
     @marshal_with(ErrorSchema, code=401)
     @flask_praetorian.auth_required
     def post(self, lat, lng):
+        # remove previous inactive geocaches
+        old = GeoCacheModel.query \
+            .filter_by(checkin=None) \
+            .filter(GeoCacheModel.user_id == flask_praetorian.current_user_id()) \
+            .all()
+
+        for gc in old:
+            db.session.delete(gc)
+
         # naively create a target between MIN to MAX m away from current location
         angle = random.randint(1, 360)
         pdistance = random.randint(current_app.config['TARGET_MIN_DISTANCE'],

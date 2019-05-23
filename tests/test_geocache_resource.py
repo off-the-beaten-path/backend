@@ -65,6 +65,39 @@ def test_create_geocache(app, client, test_user):
         assert date.today() == geocache.created_at.date()
 
 
+def test_create_geocache_deletes_inactive_previous(app, client, test_user, test_geocache, test_geocaches):
+    with app.app_context():
+        # create a checkin to make this geocache inactive
+        # this geocache should not be removed by the purge
+        checkin = CheckInModel(lat=42, lng=43, final_distance=44, geocache_id=test_geocache, user_id=test_user.id)
+        db.session.add(checkin)
+        db.session.commit()
+
+    # test geocaches should be removed by purge
+
+    data = {
+        'lat': 42.38,
+        'lng': -83.84
+    }
+
+    # hit the api
+    rv = client.post(f'/geocache',
+                     json=data,
+                     headers=test_user.auth_headers)
+
+    assert rv.status_code == 200
+
+    json_data = rv.get_json()
+
+    validate_json(json_data, 'geocache.json')
+
+    with app.app_context():
+        assert GeoCacheModel.query.get(test_geocache) is not None
+
+        for geocache_id in test_geocaches:
+            assert GeoCacheModel.query.get(geocache_id) is None
+
+
 def test_get_active_geocache_for_user(app, client, test_user, test_geocache):
     rv = client.get(f'/geocache/active',
                     headers=test_user.auth_headers)
@@ -106,7 +139,7 @@ def test_get_active_geocache_for_user_no_geocaches_in_db(app, client, test_user)
 
 def test_get_active_geocache_for_user_no_valid_geocaches(app, client, test_user, test_geocache):
     with app.app_context():
-        # create a checkin to make this geocache 'invalid' for active
+        # create a checkin to make this geocache inactive
         checkin = CheckInModel(lat=42, lng=43, final_distance=44, geocache_id=test_geocache, user_id=test_user.id)
         db.session.add(checkin)
         db.session.commit()
