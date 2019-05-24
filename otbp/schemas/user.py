@@ -39,3 +39,18 @@ class UserSchema(ma.Schema):
 
     id = marshmallow.fields.Int()
     username = marshmallow.fields.Str()
+
+
+class UserForgotPasswordSchema(ma.Schema):
+    class Meta:
+        strict = True
+
+    email = marshmallow.fields.Str()
+
+
+class UserResetPasswordSchema(ma.Schema):
+    class Meta:
+        strict = True
+
+    password = marshmallow.fields.Str()
+    token = marshmallow.fields.Str()

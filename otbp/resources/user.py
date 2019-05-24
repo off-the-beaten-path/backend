@@ -11,6 +11,7 @@ import re
 import zipfile
 
 from otbp.resources import security_rules
+from otbp.mail import send_mail
 from otbp.models import db, UserModel, CheckInModel, ImageModel
 from otbp.schemas import (
     UserAuthSchema,
@@ -18,9 +19,12 @@ from otbp.schemas import (
     UserChangePasswordSchema,
     ErrorSchema,
     DefaultApiResponseSchema,
-    UserDeleteSchema
+    UserDeleteSchema,
+    UserForgotPasswordSchema,
+    UserResetPasswordSchema
 )
 from otbp.praetorian import guard
+from otbp.utils.security import ts
 
 
 @doc(
@@ -83,6 +87,60 @@ class UserPasswordResource(MethodResource):
 
 
 @doc(
+    tags=['User']
+)
+class UserForgotPasswordResource(MethodResource):
+
+    @use_kwargs(UserForgotPasswordSchema)
+    @marshal_with(DefaultApiResponseSchema, code=200)
+    @marshal_with(ErrorSchema, code=400)
+    def post(self, email):
+        user = UserModel.query.filter_by(email=email).first()
+
+        if user is None:
+            return {'message': 'No account for email'}, 400
+
+        token = ts.dumps(email, salt='forgot-password')
+        reset_url = f'{current_app.config["FRONTEND_URL"]}/auth/reset/{token}'
+
+        subject = 'OTBP - Reset Password'
+        text = f'Please visit {reset_url} to reset your password.'
+
+        send_mail(email, subject, text)
+
+        return 'OK', 200
+
+
+@doc(
+    tags=['User']
+)
+class UserResetPasswordResource(MethodResource):
+
+    @use_kwargs(UserResetPasswordSchema)
+    @marshal_with(UserAuthSchema, code=200)
+    @marshal_with(ErrorSchema, code=400)
+    def post(self, password, token):
+        try:
+            email = ts.loads(token, salt='forgot-password', max_age=86400)
+        except Exception as e:
+            return {'message': 'Invalid token'}, 400
+
+        user = UserModel.query.filter_by(email=email).first()
+
+        if user is None:
+            return {'message': 'No account for email'}, 400
+
+        user.password = guard.encrypt_password(password)
+        db.session.commit()
+
+        resp = {
+            'jwt': guard.encode_jwt_token(user),
+        }
+
+        return resp, 200
+
+
+@doc(
     tags=['User'],
 )
 class UserLoginResource(MethodResource):
@@ -137,7 +195,6 @@ class UserDeleteResource(MethodResource):
     @marshal_with(ErrorSchema, code=400)
     @flask_praetorian.auth_required
     def post(self, password):
-
         user = flask_praetorian.current_user()
 
         if not guard._verify_password(password, user.password):
@@ -171,7 +228,7 @@ class UserExportResource(MethodResource):
         checkins = CheckInModel.query.filter_by(user=user)
         checkin_file_content = StringIO()
 
-        fieldnames = ('id', 'created_at', 'text', 'lat', 'lng', 'final_distance', 'image_id', )
+        fieldnames = ('id', 'created_at', 'text', 'lat', 'lng', 'final_distance', 'image_id',)
 
         writer = csv.DictWriter(checkin_file_content, fieldnames=fieldnames)
         writer.writeheader()
@@ -204,4 +261,3 @@ class UserExportResource(MethodResource):
                          mimetype='application/zip',
                          as_attachment=True,
                          attachment_filename=f'{user.id}.zip')
-
