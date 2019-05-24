@@ -54,3 +54,10 @@ class UserResetPasswordSchema(ma.Schema):
 
     password = marshmallow.fields.Str()
     token = marshmallow.fields.Str()
+
+
+class UserVerifyAccountPasswordSchema(ma.Schema):
+    class Meta:
+        strict = True
+
+    token = marshmallow.fields.Str()

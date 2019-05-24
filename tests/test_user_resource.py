@@ -28,24 +28,47 @@ def test_register(app, client, email, password):
     }
 
     with app.app_context():
-        # hit the api
-        rv = client.post('/user/register',
-                         json=data)
+        with mail.record_messages() as outbox:
+            # hit the api
+            rv = client.post('/user/register',
+                             json=data)
 
-        assert rv.status_code == 201
+            assert rv.status_code == 201
 
-        # confirm user is created in database
-        user = UserModel.query.filter_by(email=data['email']).first()
+            # confirm user is created in database
+            user = UserModel.query.filter_by(email=data['email']).first()
 
-        assert user.email == email
-        assert guard._verify_password(password, user.password)
-        assert user.rolenames == ['player']
-        assert user.is_valid
+            assert user.email == email
+            assert guard._verify_password(password, user.password)
+            assert user.rolenames == ['player']
+            assert not user.is_active  # invalid until email is verified
 
-        json_data = rv.get_json()
+            # grab the token from the email and verify the user
+            assert len(outbox) == 1
 
-        # confirm login succeeded
-        validate_json(json_data, 'user.jwt.json')
+            # grab the jwt from the email
+            result = re.search(
+                r'/auth/verify/([\S]+)',
+                outbox[-1].body
+            )
+
+            assert result
+
+            token = result.group(1)
+
+            data = {
+                'token': token
+            }
+
+            rv = client.post(f'/user/verify',
+                             json=data)
+
+            assert rv.status_code == 200
+
+            json_data = rv.get_json()
+
+            # confirm login succeeded
+            validate_json(json_data, 'user.jwt.json')
 
 
 def test_register_existing_user(client, test_user):
