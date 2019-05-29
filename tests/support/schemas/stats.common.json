@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "stats": {
+      "type": "object",
+      "required": [
+        "num_checkins",
+        "longest_streak",
+        "current_streak"
+      ],
+      "properties": {
+        "num_checkins": {
+          "type": "integer"
+        },
+        "longest_streak": {
+          "type": "integer"
+        },
+        "current_streak": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

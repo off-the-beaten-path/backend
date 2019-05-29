@@ -104,3 +104,8 @@ def init_app(app):
     app.add_url_rule('/geocache',
                      view_func=CreateGeoCacheResource.as_view('CreateGeoCacheResource'))
     docs.register(CreateGeoCacheResource, endpoint='CreateGeoCacheResource')
+
+    from .stats import UserStatsResource
+    app.add_url_rule('/stats/',
+                     view_func=UserStatsResource.as_view('UserStatsResource'))
+    docs.register(UserStatsResource, endpoint='UserStatsResource')
