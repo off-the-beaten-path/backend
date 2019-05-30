@@ -39,7 +39,8 @@ def init_app(app):
     docs.init_app(app)
 
     from .user import UserRegisterResource, UserLoginResource, UserRefreshResource, UserPasswordResource, \
-        UserDeleteResource, UserExportResource, UserForgotPasswordResource, UserResetPasswordResource
+        UserDeleteResource, UserExportResource, UserForgotPasswordResource, UserResetPasswordResource, \
+        UserVerifyAccountResource
 
     app.add_url_rule('/user/register', view_func=UserRegisterResource.as_view('UserRegisterResource'))
     docs.register(UserRegisterResource, endpoint='UserRegisterResource')
@@ -66,6 +67,10 @@ def init_app(app):
     app.add_url_rule('/user/password/reset',
                      view_func=UserResetPasswordResource.as_view('UserResetPasswordResource'))
     docs.register(UserResetPasswordResource, endpoint='UserResetPasswordResource')
+
+    app.add_url_rule('/user/verify',
+                     view_func=UserVerifyAccountResource.as_view('UserVerifyAccountResource'))
+    docs.register(UserVerifyAccountResource, endpoint='UserVerifyAccountResource')
 
     from .image import ImageRetrievalResource, ImageUploadResource
     app.add_url_rule('/image/<string:filename>', view_func=ImageRetrievalResource.as_view('ImageRetrievalResource'))
@@ -99,3 +104,8 @@ def init_app(app):
     app.add_url_rule('/geocache',
                      view_func=CreateGeoCacheResource.as_view('CreateGeoCacheResource'))
     docs.register(CreateGeoCacheResource, endpoint='CreateGeoCacheResource')
+
+    from .stats import UserStatsResource
+    app.add_url_rule('/stats/',
+                     view_func=UserStatsResource.as_view('UserStatsResource'))
+    docs.register(UserStatsResource, endpoint='UserStatsResource')

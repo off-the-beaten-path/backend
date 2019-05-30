@@ -65,10 +65,13 @@ def seed_db():
         images.append(image)
 
     for i in range(0, 25):
-        geocache = GeoCacheModel(lat=fake.latitude(), lng=fake.longitude(), user=user)
+        lat = float(fake.latitude())
+        lng = float(fake.longitude())
+
+        geocache = GeoCacheModel(lat=lat, lng=lng, user=user)
         checkin = CheckInModel(text=fake.sentence(),
-                               lat=fake.latitude(),
-                               lng=fake.longitude(),
+                               lat=lat + random.uniform(-0.001, 0.001),
+                               lng=lng + random.uniform(-0.001, 0.001),
                                final_distance=random.random() * 20,
                                geocache=geocache,
                                user=user)

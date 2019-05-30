@@ -21,7 +21,8 @@ from otbp.schemas import (
     DefaultApiResponseSchema,
     UserDeleteSchema,
     UserForgotPasswordSchema,
-    UserResetPasswordSchema
+    UserResetPasswordSchema,
+    UserVerifyAccountPasswordSchema
 )
 from otbp.praetorian import guard
 from otbp.utils.security import ts
@@ -33,7 +34,7 @@ from otbp.utils.security import ts
 class UserRegisterResource(MethodResource):
 
     @use_kwargs(UserLoginRegisterSchema)
-    @marshal_with(UserAuthSchema, code=201)
+    @marshal_with(DefaultApiResponseSchema, code=201)
     @marshal_with(ErrorSchema, code=400)
     def post(self, email, password):
         # check for existing user
@@ -52,16 +53,49 @@ class UserRegisterResource(MethodResource):
             return {'message': 'Invalid password. Must be between 10 and 32 characters (inclusive)'}, 400
 
         password = guard.encrypt_password(password)
-        user = UserModel(email=email, password=password, roles='player')
+        user = UserModel(email=email, password=password, roles='player', is_active=False)
 
         db.session.add(user)
+        db.session.commit()
+
+        token = ts.dumps(email, salt='verify-email')
+        reset_url = f'{current_app.config["FRONTEND_URL"]}/auth/verify/{token}'
+
+        subject = 'OTBP - Verify Email'
+        text = f'Please visit {reset_url} to verify your email.'
+
+        send_mail(email, subject, text)
+
+        return 'OK', 201
+
+
+@doc(
+    tags=['User']
+)
+class UserVerifyAccountResource(MethodResource):
+
+    @use_kwargs(UserVerifyAccountPasswordSchema)
+    @marshal_with(UserAuthSchema, code=200)
+    @marshal_with(ErrorSchema, code=400)
+    def post(self, token):
+        try:
+            email = ts.loads(token, salt='verify-email', max_age=86400)
+        except Exception as e:
+            return {'message': 'Invalid token'}, 400
+
+        user = UserModel.query.filter_by(email=email).first()
+
+        if user is None:
+            return {'message': 'No account for email'}, 400
+
+        user.is_active = True
         db.session.commit()
 
         resp = {
             'jwt': guard.encode_jwt_token(user),
         }
 
-        return resp, 201
+        return resp, 200
 
 
 @doc(
