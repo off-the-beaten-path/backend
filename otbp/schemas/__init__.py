@@ -17,7 +17,7 @@ from otbp.schemas.error import ErrorSchema
 from otbp.schemas.image import ImageSchema
 from otbp.schemas.checkin import CheckInCreateSchema, CheckInUpdateSchema, PaginatedCheckInSchema, CheckInListSchema, CheckInResponseSchema
 from otbp.schemas.geocache import GeoCacheSchema
-from otbp.schemas.stats import StatsSchema
+from otbp.schemas.stats import StatsSchema, GlobalStatsSchema
 
 
 class DefaultApiResponseSchema(ma.Schema):

@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from otbp.models import db, CheckInModel
+from otbp.models import db, CheckInModel, UserModel
 
 from tests.support.assertions import validate_json
 
@@ -169,6 +169,34 @@ def multiple_checkins_one_day_current_streak(app, test_user, test_location):
         return len(checkins)
 
 
+@pytest.fixture
+def global_stats(app, test_user, test_other_user, test_location, test_other_location, test_inactive_user):
+    with app.app_context():
+        checkins = [
+            # Today
+            CheckInModel(text='test',
+                         lat=1.0,
+                         lng=1.0,
+                         final_distance=2.0,
+                         user_id=test_user.id,
+                         geocache_id=test_location,
+                         created_at=date.today() - timedelta(days=0)),
+
+            # Yesterday
+            CheckInModel(text='test',
+                         lat=1.0,
+                         lng=1.0,
+                         final_distance=2.0,
+                         user_id=test_other_user.id,
+                         geocache_id=test_location,
+                         created_at=date.today() - timedelta(days=1)),
+        ]
+
+        db.session.add_all(checkins)
+
+        db.session.commit()
+
+
 def test_get_user_stats(app, client, test_user, current_streak, longest_streak):
     # hit the api
     rv = client.get(f'/stats/',
@@ -223,3 +251,19 @@ def test_get_user_stats_no_checkins(app, client, test_user):
     assert 0 == json_data['num_checkins']
     assert 0 == json_data['current_streak']
     assert 0 == json_data['longest_streak']
+
+
+@pytest.mark.usefixtures('global_stats')
+def test_get_global_stats(app, client):
+    # hit the api
+    rv = client.get(f'/stats/global/')
+
+    assert rv.status_code == 200
+
+    json_data = rv.get_json()
+
+    validate_json(json_data, 'stats-global.response.json')
+
+    with app.app_context():
+        assert CheckInModel.query.count() == json_data['num_checkins']
+        assert UserModel.query.filter_by(is_active=True).count() == json_data['num_players']

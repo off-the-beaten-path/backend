@@ -19,6 +19,21 @@
           "type": "integer"
         }
       }
+    },
+    "global": {
+      "type": "object",
+      "required": [
+        "num_checkins",
+        "num_players"
+      ],
+      "properties": {
+        "num_checkins": {
+          "type": "integer"
+        },
+        "num_players": {
+          "type": "integer"
+        }
+      }
     }
   }
 }

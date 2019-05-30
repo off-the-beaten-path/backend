@@ -5,9 +5,9 @@ from sqlalchemy import func
 
 import flask_praetorian
 
-from otbp.models import CheckInModel
+from otbp.models import CheckInModel, UserModel
 from otbp.resources import security_rules
-from otbp.schemas import StatsSchema
+from otbp.schemas import StatsSchema, GlobalStatsSchema
 
 
 @doc(
@@ -82,6 +82,22 @@ class UserStatsResource(MethodResource):
             'num_checkins': num_checkins,
             'longest_streak': longest_streak,
             'current_streak': current_streak
+        }
+
+        return resp, 200
+
+
+@doc(
+    tags=['Stats']
+)
+class GlobalStatsResource(MethodResource):
+
+    @marshal_with(GlobalStatsSchema, code=200)
+    def get(self):
+
+        resp = {
+            'num_checkins': CheckInModel.query.count(),
+            'num_players': UserModel.query.filter_by(is_active=True).count()
         }
 
         return resp, 200

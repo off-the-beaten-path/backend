@@ -83,6 +83,32 @@ def test_other_user(app):
 
 
 @pytest.fixture
+def test_inactive_user(app):
+    TestUser = namedtuple(
+        'TestUser', ['email', 'password', 'id', 'auth_headers']
+    )
+
+    with app.app_context():
+        email = 'test2@unittest.com'
+        password = 'password123'
+
+        user = UserModel(email=email,
+                         password=guard.encrypt_password(password),
+                         roles='player',
+                         is_active=False)
+
+        db.session.add(user)
+        db.session.commit()
+
+        headers = {}
+
+        return TestUser(email=email,
+                        password=password,
+                        id=user.id,
+                        auth_headers=headers)
+
+
+@pytest.fixture
 def test_image(app, client, test_user):
     data = {
         'file': (io.BytesIO(b'abcdef'), 'test.jpg')
